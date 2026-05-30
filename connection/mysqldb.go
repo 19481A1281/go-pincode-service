@@ -15,6 +15,52 @@ type Mysql struct {
 	DB *gorm.DB
 }
 
+// parseDatabaseURL converts standard mysql://user:pass@host:port/db URLs into Go MySQL driver DSN format
+func parseDatabaseURL(dbURL string) string {
+	if dbURL == "" {
+		return ""
+	}
+
+	// If it already matches Go MySQL DSN, return as is
+	if strings.Contains(dbURL, "@tcp(") {
+		return dbURL
+	}
+
+	// Strip mysql:// scheme prefix
+	cleaned := strings.TrimPrefix(dbURL, "mysql://")
+
+	// Parse user:pass@host:port/dbname
+	parts := strings.SplitN(cleaned, "@", 2)
+	if len(parts) != 2 {
+		return dbURL
+	}
+
+	creds := parts[0]
+	rest := parts[1]
+
+	dbParts := strings.SplitN(rest, "/", 2)
+	if len(dbParts) != 2 {
+		return dbURL
+	}
+
+	addr := dbParts[0]
+	dbAndParams := dbParts[1]
+
+	// Wrap host:port in tcp() as required by Go MySQL driver
+	dsn := fmt.Sprintf("%s@tcp(%s)/%s", creds, addr, dbAndParams)
+
+	// Ensure query parameters are present
+	if !strings.Contains(dsn, "charset=") {
+		if strings.Contains(dsn, "?") {
+			dsn += "&charset=utf8mb4&parseTime=True&loc=Local"
+		} else {
+			dsn += "?charset=utf8mb4&parseTime=True&loc=Local"
+		}
+	}
+
+	return dsn
+}
+
 func NewMysqlConnection()(*Mysql, error){
 	err := godotenv.Load()
 	if err != nil{
@@ -34,8 +80,7 @@ func NewMysqlConnection()(*Mysql, error){
 		dbName := os.Getenv("DB_NAME")
 		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, host, port, dbName)
 	} else {
-		// Clean up schema prefix if provided by hosting platforms
-		dsn = strings.TrimPrefix(dsn, "mysql://")
+		dsn = parseDatabaseURL(dsn)
 	}
 
 	db,err := gorm.Open(mysql.Open(dsn),&gorm.Config{})
@@ -48,4 +93,5 @@ func NewMysqlConnection()(*Mysql, error){
 
 	return &Mysql{DB:db,},nil
 }
+
 
