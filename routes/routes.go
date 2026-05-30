@@ -33,10 +33,6 @@ func SetupRoutes(
 
 	pincodes := router.Group("/pincode")
 	{
-		pincodes.POST("/",pincodeController.Create)
-		pincodes.GET("/byID/:id",pincodeController.GetByID)
-		pincodes.GET("/:pincode",pincodeController.GetByPincode)
-		pincodes.GET("/",pincodeController.GetAll)
-		pincodes.PATCH("/:pincode",pincodeController.Update)
+		pincodes.GET("/:pincode", pincodeController.GetByPincode)
 	}
-}
+}

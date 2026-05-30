@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/19481A1281/go-pincode-service/models"
 	"github.com/19481A1281/go-pincode-service/services"
@@ -66,7 +67,20 @@ func (c *PincodeController) GetByPincode(ctx *gin.Context){
 		return
 	}
 
-	ctx.JSON(http.StatusOK, data)
+	var areas []string
+	if data.Areas != "" {
+		areas = strings.Split(data.Areas, ", ")
+	} else {
+		areas = []string{}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"pincode":  data.Pincode,
+		"city":     data.City,
+		"district": data.District,
+		"state":    data.State,
+		"areas":    areas,
+	})
 }
 
 func (c *PincodeController) GetAll(ctx *gin.Context){

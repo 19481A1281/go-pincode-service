@@ -20,7 +20,7 @@ When developing the pincode service, adhere to clean architecture patterns:
 ## Technical Specifications
 
 ### 1. Database Schema Optimization
-Keep the `Pincode` model struct exactly as follows (with the unique index and types):
+Keep the `Pincode` model struct exactly as follows (with the unique index, types, and Areas column):
 ```go
 package models
 
@@ -32,6 +32,7 @@ type Pincode struct {
 	City      string    `json:"city" gorm:"column:city;not null"`
 	District  string    `json:"district" gorm:"column:district;not null"`
 	State     string    `json:"state" gorm:"column:state;not null"`
+	Areas     string    `json:"-" gorm:"column:areas;type:text"`
 	CreatedAt time.Time `json:"createdAt" gorm:"column:created_at;not null"`
 	UpdatedAt time.Time `json:"updatedAt" gorm:"column:updated_at;not null"`
 }
@@ -50,16 +51,17 @@ Fintech forms require API responses in less than 100ms. Database queries can be 
   ```
 
 ### 3. API Response for Fintech Onboarding
-Ensure the API responds with structured pincode JSON data matching the model:
+Ensure the API responds with a structured, credential-safe JSON payload containing nested areas, hiding internal IDs and database timestamps:
 ```json
 {
-  "id": 1,
   "pincode": 560001,
   "city": "Bangalore",
   "district": "Bangalore North",
   "state": "Karnataka",
-  "createdAt": "2026-05-30T16:53:10Z",
-  "updatedAt": "2026-05-30T16:53:10Z"
+  "areas": [
+    "Bangalore G.P.O.",
+    "Raj Bhavan"
+  ]
 }
 ```
 
@@ -70,6 +72,7 @@ When deploying to free providers (Render, Railway, Fly.io, Hugging Face Spaces):
   router.Use(cors.Default())
   ```
 - **Health Check**: Add a `/health` or `/healthz` endpoint. Free tiers spin down when inactive; configure a pinging service (like UptimeRobot) to ping the health endpoint every 10–14 minutes to keep the instance active.
+- **Route Restriction**: For security and resource protection, only expose the health check endpoint and the main `GET /pincode/:pincode` lookup endpoint to public online users. Restrict or disable administrative endpoints (POST, PATCH, DELETE, and bulk exports) in the routing configuration.
 - **Environment Variables**: Read port and DB connection string dynamically:
   ```go
   port := os.Getenv("PORT")
