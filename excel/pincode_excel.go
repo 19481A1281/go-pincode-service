@@ -22,9 +22,16 @@ var (
 	loadingMutex sync.RWMutex
 )
 
-// cleanAreaName strips trailing B.O, S.O, BO, SO suffixes and cleans up names
+// cleanAreaName strips trailing parentheses (like " (Guntur)") and trailing B.O, S.O, BO, SO suffixes
 func cleanAreaName(name string) string {
 	name = strings.TrimSpace(name)
+
+	// 1. Remove trailing parenthesis like " (Guntur)" or " (GUNTUR)"
+	if idx := strings.Index(name, "("); idx != -1 {
+		name = strings.TrimSpace(name[:idx])
+	}
+
+	// 2. Strip trailing SO / BO / HO suffixes
 	upperName := strings.ToUpper(name)
 	suffixes := []string{" B.O.", " B.O", " BO", " S.O.", " S.O", " SO", " H.O.", " H.O", " HO"}
 	for _, suffix := range suffixes {

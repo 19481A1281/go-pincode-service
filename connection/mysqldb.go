@@ -67,20 +67,37 @@ func NewMysqlConnection()(*Mysql, error){
 		log.Println(".env file not found")
 	}
 
-	dsn := os.Getenv("DATABASE_URL")
-	if dsn == "" {
-		dsn = os.Getenv("DB_DSN")
-	}
+	dbEnv := os.Getenv("DB_ENV") // "local" or "remote"
+	var dsn string
 
-	if dsn == "" {
+	if dbEnv == "local" {
 		username := os.Getenv("DB_USERNAME")
 		password := os.Getenv("DB_PASSWORD")
 		host := os.Getenv("DB_HOST")
 		port := os.Getenv("DB_PORT")
 		dbName := os.Getenv("DB_NAME")
 		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, host, port, dbName)
+		log.Println("Connecting to LOCAL database...")
 	} else {
-		dsn = parseDatabaseURL(dsn)
+		// Default to remote URL if DB_ENV is remote or not specified but URL exists
+		dsn = os.Getenv("DATABASE_URL")
+		if dsn == "" {
+			dsn = os.Getenv("DB_DSN")
+		}
+
+		if dsn == "" {
+			// Fallback to individual variables if no database URL is set at all
+			username := os.Getenv("DB_USERNAME")
+			password := os.Getenv("DB_PASSWORD")
+			host := os.Getenv("DB_HOST")
+			port := os.Getenv("DB_PORT")
+			dbName := os.Getenv("DB_NAME")
+			dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, host, port, dbName)
+			log.Println("Connecting to database using individual credentials...")
+		} else {
+			dsn = parseDatabaseURL(dsn)
+			log.Println("Connecting to REMOTE database via URL...")
+		}
 	}
 
 	db,err := gorm.Open(mysql.Open(dsn),&gorm.Config{})
@@ -93,5 +110,6 @@ func NewMysqlConnection()(*Mysql, error){
 
 	return &Mysql{DB:db,},nil
 }
+
 
 
