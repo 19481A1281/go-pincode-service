@@ -1,0 +1,17 @@
+{
+  "skill_name": "pincode-backend-helper",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Write a Go service with caching for searching pincodes that fintech clients can use.",
+      "expected_output": "The code uses GORM, includes an in-memory or Redis caching layer, and returns structured pincode JSON data matching the Pincode struct.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "How do I deploy this Go pincode backend to Render free tier and keep it active?",
+      "expected_output": "Instructions include setting up CORS, reading PORT from env, writing a health-check endpoint, and using a ping utility like UptimeRobot to prevent spin-down.",
+      "files": []
+    }
+  ]
+}
