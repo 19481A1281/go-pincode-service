@@ -16,7 +16,7 @@ type PincodeService interface {
 	Create(*models.Pincode) (*models.Pincode, error)
 	//BulkCreate([]models.Pincode)error
 	Update(pincode uint32, updates map[string]interface{}) (*models.Pincode, error)
-	Delete(id uint16) error
+	Delete(pincode uint32) error
 	GetAll(page int, limit int) (*[]models.Pincode, error)
 	GetByID(id uint16) (*models.Pincode, error)
 	GetByPincode(pincode uint32) (*models.Pincode, error)
@@ -56,14 +56,14 @@ func (s *pincodeService) Update(pincode uint32, updates map[string]interface{}) 
 	return data, nil
 }
 
-func (s *pincodeService) Delete(id uint16) error {
-	if val, ok := s.cache.Load(id); ok {
+func (s *pincodeService) Delete(pincode uint32) error {
+	if val, ok := s.cache.Load(pincode); ok {
 		if cached, ok := val.(*models.Pincode); ok {
-			s.cache.Delete(cached.Pincode)
+			s.cache.Delete(cached.ID)
 		}
 	}
-	s.cache.Delete(id)
-	return s.repo.Delete(id)
+	s.cache.Delete(pincode)
+	return s.repo.Delete(pincode)
 }
 
 func (s *pincodeService) GetAll(page int, limit int) (*[]models.Pincode, error) {

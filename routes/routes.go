@@ -34,5 +34,6 @@ func SetupRoutes(
 	pincodes := router.Group("/pincode")
 	{
 		pincodes.GET("/:pincode", pincodeController.GetByPincode)
+		pincodes.DELETE("/:pincode", pincodeController.Delete)
 	}
 }

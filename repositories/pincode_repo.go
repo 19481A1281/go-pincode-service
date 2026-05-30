@@ -9,7 +9,7 @@ type PincodeRepository interface {
 	Create(*models.Pincode) (*models.Pincode, error)
 	//BulkCreate([]models.Pincode)error
 	Update(id uint32, updates map[string]interface{}) (*models.Pincode, error)
-	Delete(id uint16) error
+	Delete(pincode uint32) error
 	GetAll(page int, limit int) (*[]models.Pincode, error)
 	GetByID(id uint16) (*models.Pincode, error)
 	GetByPincode(pin uint32)(*models.Pincode, error)
@@ -81,8 +81,8 @@ func (r *pincodeRepository) Update(pin uint32, updates map[string]interface{}) (
 	return &pincode, nil
 }
 
-func (r *pincodeRepository) Delete(id uint16) error {
-	result := r.db.Delete(&models.Pincode{}, id)
+func (r *pincodeRepository) Delete(pincode uint32) error {
+	result := r.db.Where("pincode = ?", pincode).Delete(&models.Pincode{})
 
 	if result.Error != nil {
 		return result.Error

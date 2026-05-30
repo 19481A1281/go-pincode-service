@@ -126,7 +126,7 @@ func(c *PincodeController) Update(ctx *gin.Context){
 func(c *PincodeController) Delete(ctx *gin.Context){
 	pin,_ := strconv.Atoi(ctx.Param("pincode"))
 	
-	err := c.service.Delete(uint16(pin))
+	err := c.service.Delete(uint32(pin))
 	if err != nil{
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error" : err.Error(),
