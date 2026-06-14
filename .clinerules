@@ -1,0 +1,23 @@
+# Pincode Service AI Agent Guidelines
+
+You are working in the Pincode Service Go codebase. To maintain context across chat sessions and prevent state loss, you must adhere to the following rules:
+
+## 1. MOC (Map of Content) First
+Before writing any code or answering complex questions, read `MOC.md` in the root directory. It tracks all components, directories, and unresolved technical issues.
+
+## 2. Keep the MOC Synchronized
+Whenever you:
+- Create a new file (e.g., helper, endpoint handler, repository interface, test script).
+- Delete an existing file.
+- Move or refactor files.
+- Introduce a new environment variable or configuration item.
+
+You MUST update `MOC.md` immediately with:
+1. Valid Obsidian `[[wiki-links]]` referencing the file path.
+2. A one-line, italicized annotation explaining what the file does and how it integrates into the service.
+3. Relevant additions to the grouped theme headers.
+
+## 3. Manage Open Questions
+If you identify technical debt, cache bottlenecks, concurrency safety concerns, or architectural decisions that require clarification:
+1. Add them as bullet points under the `## Open questions` section in `MOC.md`.
+2. When you resolve an open question or implement a solution, remove or mark it as resolved in `MOC.md`.

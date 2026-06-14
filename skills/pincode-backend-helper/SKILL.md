@@ -91,3 +91,11 @@ When loading a large dataset of pincodes from a CSV or Excel file:
 Under heavy concurrent traffic, if a pincode lookup misses the cache, multiple concurrent requests might hit the database or Excel parser at the same time (Cache Stampede/Dogpiling).
 - **Strategy**: Use `golang.org/x/sync/singleflight` to combine duplicate concurrent lookups into a single execution, preventing resources exhaustion.
 - **Background Seeding/Parsing**: For large static assets (like 20MB+ CSV files), parse them in a background goroutine on startup into a thread-safe `sync.Map` to ensure instant `O(1)` memory lookups without blocking API boot.
+
+### 7. Agent Context & Documentation Management (MOC Guidelines)
+To prevent context loss across chat sessions, all agents MUST carefully maintain and update the `MOC.md` file in the root of the project:
+- **Review MOC First**: Always read `MOC.md` first on startup to obtain a layout of all project components and understand the existing features.
+- **Sync Changes**: Whenever a new file is created, modified, or deleted, or when an architecture decision is made, update `MOC.md` with appropriate wiki-links and annotations.
+- **Keep Annotations Short**: Keep one-line italicized annotations up-to-date, explaining what each note/source file covers.
+- **Manage Open Questions**: Append new design decisions or unresolved bottlenecks to the "Open questions" section, and remove or document them as resolved once implemented.
+
